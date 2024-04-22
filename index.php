@@ -20,7 +20,7 @@
                 $stmt->execute();
     
                 // Recoger registros como un arreglo asociativo
-                $registros = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                $registros = $stmt->fetch(PDO::FETCH_ASSOC);
     
                 // Codificar y retornar respuesta
                 $response = new APIResponse(200,'Success',$registros);
