@@ -9,13 +9,5 @@
             $this->message = $message;
             $this->data = $data;
         }
-    
-        // public function toJson() {
-        //     return json_encode(array(
-        //         'code' => $this->code,
-        //         'message' => $this->message,
-        //         'data' => $this->data
-        //     ));
-        // }
     }
 ?>
