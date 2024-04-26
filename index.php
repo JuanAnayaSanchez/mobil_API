@@ -8,7 +8,7 @@
 
     $dbConn = dbConect();
 
-    if ($_SERVER['REQUEST_METHOD'] === 'GET' && $url === '/mobil_API/ValidateUserExist') {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && $url === '/mobil_API/ValidateUserExist') {
     
         try{
             $requestData = json_decode(file_get_contents('php://input'), true);
@@ -41,7 +41,7 @@
         }
     }
 
-    if($_SERVER['REQUEST_METHOD'] === 'GET' && $url === '/mobil_API/ValidateCodeExist'){
+    if($_SERVER['REQUEST_METHOD'] === 'POST' && $url === '/mobil_API/ValidateCodeExist'){
         try{
             $requestData = json_decode(file_get_contents('php://input'), true);
             $code_name_input = $requestData['code_name_input'] ?? null;
