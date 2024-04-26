@@ -25,7 +25,7 @@ DELIMITER $$
 --
 -- Procedimientos
 --
-CREATE DEFINER=`root`@`localhost` PROCEDURE `check_code_exist` (IN `prmname` VARCHAR(50), OUT `prmexists` INT)   BEGIN
+CREATE  PROCEDURE `check_code_exist` (IN `prmname` VARCHAR(50), OUT `prmexists` INT)   BEGIN
     DECLARE code_count INT;
 
     SELECT COUNT(*) INTO code_count FROM codes WHERE name = prmname;
@@ -37,14 +37,14 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `check_code_exist` (IN `prmname` VAR
     END IF;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `check_user_exist` (IN `prmphone` INT)   BEGIN
+CREATE  PROCEDURE `check_user_exist` (IN `prmphone` INT)   BEGIN
   
   SELECT id, name, mail, phone, city, identification_number, date
   FROM users
   WHERE phone = prmphone;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `insert_user` (IN `prmname` VARCHAR(50), IN `prmmail` VARCHAR(100), IN `prmcity` VARCHAR(50), IN `prmphone` INT, IN `prmidentification_number` INT, OUT `phone_exist` TINYINT, OUT `new_user_id` INT)   BEGIN
+CREATE  PROCEDURE `insert_user` (IN `prmname` VARCHAR(50), IN `prmmail` VARCHAR(100), IN `prmcity` VARCHAR(50), IN `prmphone` INT, IN `prmidentification_number` INT, OUT `phone_exist` TINYINT, OUT `new_user_id` INT)   BEGIN
     -- Verificar si el número de teléfono ya existe en la tabla usuarios
     SELECT COUNT(*) INTO phone_exist FROM users WHERE phone = prmphone;
     
