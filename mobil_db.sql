@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 25-04-2024 a las 04:41:59
+-- Tiempo de generación: 26-04-2024 a las 05:59:03
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -37,45 +37,29 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `check_code_exist` (IN `prmname` VAR
     END IF;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `check_user_exist` (IN `identification_number_input` INT)   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `check_user_exist` (IN `prmphone` INT)   BEGIN
   
   SELECT id, name, mail, phone, city, identification_number, date
   FROM users
-  WHERE identification_number = identification_number_input;
+  WHERE phone = prmphone;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `create_user` (IN `prmname` VARCHAR(100), IN `prmmail` VARCHAR(100), IN `prmphone` INT, IN `prmcity` VARCHAR(50), IN `prmidentification_number` INT, OUT `prmmail_exist` TINYINT, OUT `prmidentification_number_exist` TINYINT, OUT `prmuser_id` INT)   BEGIN
-    -- Inicializar las variables de salida
-    SET prmmail_exist = 0;
-    SET prmidentification_number_exist = 0;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insert_user` (IN `prmname` VARCHAR(50), IN `prmmail` VARCHAR(100), IN `prmcity` VARCHAR(50), IN `prmphone` INT, IN `prmidentification_number` INT, OUT `phone_exist` TINYINT, OUT `new_user_id` INT)   BEGIN
+    -- Verificar si el número de teléfono ya existe en la tabla usuarios
+    SELECT COUNT(*) INTO phone_exist FROM users WHERE phone = prmphone;
     
-    -- Verificar si el correo electrónico ya existe en la tabla
-    SELECT COUNT(*) INTO prmmail_exist FROM users WHERE mail = prmmail;
-    
-    -- Verificar si el número de identificación ya existe en la tabla
-    SELECT COUNT(*) INTO prmidentification_number_exist FROM users WHERE identification_number = prmidentification_number;
-    
-    -- Si el correo existe o el número de identificación existe, establecer ambas variables de salida en 1
-    IF prmmail_exist > 0 OR prmidentification_number_exist > 0 THEN
-        IF prmmail_exist > 0 THEN
-            SET prmmail_exist = 1;
-        END IF;
-        
-        IF prmidentification_number_exist > 0 THEN
-            SET prmidentification_number_exist = 1;
-        END IF;
+    -- Si el número de teléfono ya existe, no insertar y devolver valor indicando que ya existe
+    IF phone_exist > 0 THEN
+		SET phone_exist = 1;
+        SET new_user_id = 0; -- Establecer un valor negativo para indicar que no se insertó ningún nuevo usuario
     ELSE
-        -- Insertar el nuevo usuario en la tabla users
-        INSERT INTO users (name, mail, phone, city, identification_number, date) 
-        VALUES (prmname, prmmail, prmphone, prmcity, prmidentification_number, CURDATE());
+        -- Insertar el nuevo usuario en la tabla usuarios
+        INSERT INTO users (name, mail, city, phone, identification_number, date) 
+        VALUES (prmname, prmmail, prmcity, prmphone, prmidentification_number, NOW());
         
-        -- Obtener el ID del usuario recién insertado
-        SET prmuser_id = LAST_INSERT_ID();
-    END IF;
-    
-    -- Devolver los datos del usuario insertado
-    IF prmuser_id IS NOT NULL THEN
-        SELECT * FROM users WHERE id = prmuser_id;
+        -- Obtener el ID del usuario insertado
+        SET new_user_id = LAST_INSERT_ID();
+        SELECT id, name, mail, city, phone, identification_number, date FROM users WHERE id = new_user_id;
     END IF;
 END$$
 
@@ -123,8 +107,10 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `mail`, `phone`, `city`, `identification_number`, `date`) VALUES
-(1, 'JUAN PABLO', 'JUAN@MAIL.COM', 2147483647, 'BOGOTA', 1000179085, '2024-04-21 14:59:39'),
-(2, 'Nombre del usuario', 'correo@example.com', 123456789, 'Ciudad', 123456789, '2024-04-23 00:00:00');
+(7, 'CAMILO', 'CAMILO@example.com', 1234567589, 'MEDELLIN', 1234568, '2024-04-25 22:07:18'),
+(8, 'Juan', 'juan@example.com', 2414141, 'Ciudad', 123456, '2024-04-25 22:23:49'),
+(9, 'STEVEN', 'STEVEN@example.com', 24141415, 'CALI', 12345688, '2024-04-25 22:42:49'),
+(10, 'STEVEN', 'STEVEN@example.com', 2147483647, 'CALI', 12345688, '2024-04-25 22:57:38');
 
 --
 -- Índices para tablas volcadas
@@ -157,7 +143,7 @@ ALTER TABLE `codes`
 -- AUTO_INCREMENT de la tabla `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- Restricciones para tablas volcadas
