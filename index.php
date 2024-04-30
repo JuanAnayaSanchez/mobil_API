@@ -21,7 +21,7 @@
     
                 // Recoger registros como un arreglo asociativo
                 $registros = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+                if($registros == false) $registros = null;
                 // Codificar y retornar respuesta
                 $response = new APIResponse(200,'Success',$registros);
 
