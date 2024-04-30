@@ -3,9 +3,9 @@
     function dbConect() {
         //conexion DB
         $dbHost = "localhost";
-        $dbName = "u326127156_terpel";
-        $dbUser = "u326127156_terpel";
-        $dbPass = "Terpel2023@";
+        $dbName = "mobil_db";
+        $dbUser = "root";
+        $dbPass = "";
 
         try {
           $dbConn = new PDO("mysql:host=$dbHost;dbname=$dbName", $dbUser, $dbPass);
