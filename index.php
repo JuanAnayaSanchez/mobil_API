@@ -92,7 +92,7 @@
                 $stmt->bindParam(':prmname', $name, PDO::PARAM_STR);
                 $stmt->bindParam(':prmmail', $mail, PDO::PARAM_STR);
                 $stmt->bindParam(':prmcity', $city, PDO::PARAM_STR);
-                $stmt->bindParam(':prmphone', $phone, PDO::PARAM_INT);
+                $stmt->bindParam(':prmphone', $phone, PDO::PARAM_STR);
                 $stmt->bindParam(':prmidentification_number', $identification_number, PDO::PARAM_INT);
                 $stmt->execute();
     
