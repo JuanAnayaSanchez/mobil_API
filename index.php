@@ -112,6 +112,7 @@
                 $phoneExist = $result['phone_exist'] ?? 0; // Si no hay resultado, se asume falso (0)
     
                 // Construir y retornar respuesta
+                if(!$userData) $userData = null;
                 $response = new APIResponse(200, 'Success', [
                     'user' => $userData,
                     'phone_exist' => (bool)$phoneExist
