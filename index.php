@@ -87,7 +87,6 @@
             $identification_number = $requestData['identification_number_input'] ?? null;
     
             if ($name !== null && $mail !== null && $city !== null && $phone !== null && $identification_number !== null) {
-                // Ejecutar procedimiento almacenado para validar si el número de teléfono ya existe
                 $stmt = $dbConn->prepare("CALL insert_user(:prmname, :prmmail, :prmcity, :prmphone, :prmidentification_number, @phone_exist, @new_user_id)");
                 $stmt->bindParam(':prmname', $name, PDO::PARAM_STR);
                 $stmt->bindParam(':prmmail', $mail, PDO::PARAM_STR);
@@ -143,7 +142,6 @@
             $locate = $requestData['prmlocate_input'] ?? null;
 
             if($newpoints != null && $user_id != null && $locate != null){
-                // Ejecutar procedimiento almacenado para validar si el número de teléfono ya existe
                 $stmt = $dbConn->prepare("CALL insert_scores(:prmnewpoints, :prmuser_id, :prmlocate, @prmuserexist)");
                 $stmt->bindParam(':prmnewpoints', $newpoints, PDO::PARAM_INT);
                 $stmt->bindParam(':prmuser_id', $user_id, PDO::PARAM_INT);
@@ -168,6 +166,51 @@
                 header('Content-Type: application/json');
                 echo json_encode($response);
             }else {
+                // Si falta algún parámetro en la solicitud, responder con un código de estado 400 y un mensaje de error
+                http_response_code(400);
+                $response = new APIResponse(400, 'Missing parameters', []);
+                header('Content-Type: application/json');
+                echo json_encode($response);
+            }
+        }catch(PDOException $e){
+            // Si ocurre un error en la base de datos, responder con un código de estado 500 y un mensaje de error
+            http_response_code(500);
+            $response = new APIResponse(500, 'Database Error', [$e]);
+            header('Content-Type: application/json');
+            echo json_encode($response);
+        }
+    }
+
+    if($_SERVER['REQUEST_METHOD'] === 'POST' && $url === '/mobil_API/InsertReferralsPoints'){
+        try{
+            $requestData = json_decode(file_get_contents('php://input'), true);
+            $user_id = $requestData['prmuser_id_input'] ?? null;
+            $locate = $requestData['prmlocate_input'] ?? null;
+
+            if($user_id != null && $locate != null){
+                $stmt = $dbConn->prepare("CALL insert_referrals(:prmuser_id, :prmlocate, @prmuserexist)");
+                $stmt->bindParam(':prmuser_id', $user_id, PDO::PARAM_INT);
+                $stmt->bindParam(':prmlocate', $locate, PDO::PARAM_STR);
+                $stmt->execute();
+
+                // Capturar el valor de prmuserexist
+                $stmt->closeCursor();
+                $stmt = $dbConn->query("SELECT @prmuserexist AS prmuserexist");
+                $result = $stmt->fetch(PDO::FETCH_ASSOC);
+                $prmuserexist = $result['prmuserexist'];
+
+                // Capturar el resultado del procedimiento almacenado
+                $stmt = $dbConn->query("SELECT id, points, user_id, date, locale FROM referrals WHERE id = LAST_INSERT_ID()");
+                $result = $stmt->fetch(PDO::FETCH_ASSOC);
+                if($result == false) $result = null;
+
+                $response = new APIResponse(200, 'Success', [
+                    'score' => $result,
+                    'user_exist' => (bool)$prmuserexist
+                ]);
+                header('Content-Type: application/json');
+                echo json_encode($response);
+            }else{
                 // Si falta algún parámetro en la solicitud, responder con un código de estado 400 y un mensaje de error
                 http_response_code(400);
                 $response = new APIResponse(400, 'Missing parameters', []);
