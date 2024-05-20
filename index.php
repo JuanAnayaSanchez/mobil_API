@@ -140,12 +140,14 @@
             $newpoints = $requestData['prmnewpoints_input'] ?? null;
             $user_id = $requestData['prmuser_id_input'] ?? null;
             $locate = $requestData['prmlocate_input'] ?? null;
+            $code_name = $requestData['prmcode_name_input'] ?? null;
 
-            if($newpoints != null && $user_id != null && $locate != null){
-                $stmt = $dbConn->prepare("CALL insert_scores(:prmnewpoints, :prmuser_id, :prmlocate, @prmuserexist)");
+            if($newpoints != null && $user_id != null && $locate != null && $code_name != null){
+                $stmt = $dbConn->prepare("CALL insert_scores(:prmnewpoints, :prmuser_id, :prmlocate,:prmcodename, @prmuserexist)");
                 $stmt->bindParam(':prmnewpoints', $newpoints, PDO::PARAM_INT);
                 $stmt->bindParam(':prmuser_id', $user_id, PDO::PARAM_INT);
                 $stmt->bindParam(':prmlocate', $locate, PDO::PARAM_STR);
+                $stmt->bindParam(':prmcodename',$code_name,PDO::PARAM_STR);
                 $stmt->execute();
 
                 // Capturar el valor de prmuserexist
