@@ -187,12 +187,14 @@
         try{
             $requestData = json_decode(file_get_contents('php://input'), true);
             $user_id = $requestData['prmuser_id_input'] ?? null;
+            $referal_id = $requestData['prmreferal_id_input'] ?? null;
             $locate = $requestData['prmlocate_input'] ?? null;
 
-            if($user_id != null && $locate != null){
-                $stmt = $dbConn->prepare("CALL insert_referrals(:prmuser_id, :prmlocate, @prmuserexist)");
+            if($user_id != null && $locate != null && $referal_id != null){
+                $stmt = $dbConn->prepare("CALL insert_referrals(:prmuser_id, :prmreferal_id, :prmlocate, @prmuserexist)");
                 $stmt->bindParam(':prmuser_id', $user_id, PDO::PARAM_INT);
                 $stmt->bindParam(':prmlocate', $locate, PDO::PARAM_STR);
+                $stmt->bindParam(':prmreferal_id',$referal_id,PDO::PARAM_INT);
                 $stmt->execute();
 
                 // Capturar el valor de prmuserexist
