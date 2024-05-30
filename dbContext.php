@@ -2,10 +2,10 @@
     //Conectarse a la base de datos
     function dbConect() {
         //conexion DB
-        $dbHost = "srv725.hstgr.io";
-        $dbName = "u326127156_terpel";
-        $dbUser = "u326127156_terpel";
-        $dbPass = "Terpel2023@";
+                $dbHost = "localhost";
+        $dbName = "mobil_db";
+        $dbUser = "root";
+        $dbPass = "";
 
         try {
           $dbConn = new PDO("mysql:host=$dbHost;dbname=$dbName", $dbUser, $dbPass);
