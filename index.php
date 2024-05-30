@@ -258,4 +258,36 @@
             echo json_encode($response);
         }
     }
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && $url === '/mobil_API/SelectScoreReferrals') {
+        try {
+            $requestData = json_decode(file_get_contents('php://input'), true);
+            $user_id = $requestData['prmuser_id_input'] ?? null;
+    
+            if ($user_id !== null) {
+                $stmt = $dbConn->prepare("CALL select_scores_referrals(:prmUserId)");
+                $stmt->bindParam(':prmUserId', $user_id, PDO::PARAM_INT);
+                $stmt->execute();
+                $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+                // Interpretar el resultado
+                $result = $result ?: []; // Si no hay resultado, retorna un array vacío
+    
+                // Codificar y retornar respuesta
+                $response = new APIResponse(200, 'Success', ['data' => $result]);
+                header('Content-Type: application/json');
+                echo json_encode($response);
+            } else {
+                http_response_code(400);
+                $response = new APIResponse(400, 'Missing parameters', []);
+                header('Content-Type: application/json');
+                echo json_encode($response);
+            }
+        } catch (PDOException $e) {
+            http_response_code(500);
+            $response = new APIResponse(500, 'Internal Server Error', ['error' => $e->getMessage()]);
+            header('Content-Type: application/json');
+            echo json_encode($response);
+        }
+    }
 ?>
