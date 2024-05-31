@@ -274,7 +274,7 @@
                 $result = $result ?: []; // Si no hay resultado, retorna un array vacío
     
                 // Codificar y retornar respuesta
-                $response = new APIResponse(200, 'Success', ['data' => $result]);
+                $response = new APIResponse(200, 'Success', $result);
                 header('Content-Type: application/json');
                 echo json_encode($response);
             } else {
