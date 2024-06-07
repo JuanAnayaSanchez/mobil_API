@@ -290,4 +290,51 @@
             echo json_encode($response);
         }
     }
+
+    if($_SERVER['REQUEST_METHOD'] === 'POST' && $url === '/mobil_API/InsertCodes'){
+        try{
+            $requestData = json_decode(file_get_contents('php://input'), true);
+            $number_codes = $requestData['prmnumber_codes'] ?? null;
+            if($number_codes !== null){
+                $stmt = $dbConn->prepare("CALL insert_codes(:numRecords)");
+                $stmt->bindParam(':numRecords', $number_codes, PDO::PARAM_INT);
+                $stmt->execute();
+
+                $response = new APIResponse(200, 'Success', true);
+                header('Content-Type: application/json');
+                echo json_encode($response);
+            }else {
+                http_response_code(400);
+                $response = new APIResponse(400, 'Missing parameters', []);
+                header('Content-Type: application/json');
+                echo json_encode($response);
+            }
+        }catch (PDOException $e) {
+            http_response_code(500);
+            $response = new APIResponse(500, 'Internal Server Error', ['error' => $e->getMessage()]);
+            header('Content-Type: application/json');
+            echo json_encode($response);
+        }
+    }
+
+    if($_SERVER['REQUEST_METHOD'] === 'GET' && $url === '/mobil_API/SelectCodes'){
+        try{
+            $stmt = $dbConn->prepare("CALL select_codes()");
+            $stmt->execute();
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Interpretar el resultado
+            $result = $result ?? null; // Si no hay resultado, se asume falso (0)
+        
+            // Codificar y retornar respuesta
+            $response = new APIResponse(200, 'Success', ['data' => $result]);
+            header('Content-Type: application/json');
+            echo json_encode($response);
+        }catch (PDOException $e){
+            http_response_code(500);
+            $response = new APIResponse(500, 'Internal Server Error', $e);
+            header('Content-Type: application/json');
+            echo json_encode($response);
+        }
+    }
 ?>
