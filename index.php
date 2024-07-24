@@ -337,4 +337,30 @@
             echo json_encode($response);
         }
     }
+
+    if($_SERVER['REQUEST_METHOD'] === 'POST' && $url === '/mobil_API/DeleteCode'){
+        try{
+            $requestData = json_decode(file_get_contents('php://input'), true);
+            $codeId = $requestData['prmCodeId'] ?? null;
+            if($codeId !== null){
+                $stmt = $dbConn->prepare("CALL delete_code(:prmCodeId)");
+                $stmt->bindParam(':prmCodeId', $codeId, PDO::PARAM_INT);
+                $stmt->execute();
+
+                $response = new APIResponse(200, 'Success', true);
+                header('Content-Type: application/json');
+                echo json_encode($response);
+            }else{
+                http_response_code(400);
+                $response = new APIResponse(400, 'Missing parameters', []);
+                header('Content-Type: application/json');
+                echo json_encode($response);
+            }
+        }catch (PDOException $e) {
+            http_response_code(500);
+            $response = new APIResponse(500, 'Internal Server Error', ['error' => $e->getMessage()]);
+            header('Content-Type: application/json');
+            echo json_encode($response);
+        }
+    }
 ?>
