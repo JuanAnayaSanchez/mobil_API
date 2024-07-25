@@ -363,4 +363,21 @@
             echo json_encode($response);
         }
     }
+
+    if($_SERVER['REQUEST_METHOD'] === 'GET' && $url === '/mobil_API/DeleteAllCodes'){
+        try{
+            $stmt = $dbConn->prepare("CALL delete_all_codes()");
+            $stmt->execute();
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $response = new APIResponse(200, 'Success', true);
+            header('Content-Type: application/json');
+            echo json_encode($response);
+        }catch (PDOException $e){
+            http_response_code(500);
+            $response = new APIResponse(500, 'Internal Server Error', $e);
+            header('Content-Type: application/json');
+            echo json_encode($response);
+        }      
+    }
 ?>
