@@ -90,15 +90,13 @@
             $requestData = json_decode(file_get_contents('php://input'), true);
             $name = $requestData['name_input'] ?? null;
             $mail = $requestData['mail_input'] ?? null;
-            $city = $requestData['city_input'] ?? null;
             $phone = $requestData['phone_input'] ?? null;
             $identification_number = $requestData['identification_number_input'] ?? null;
     
-            if ($name !== null && $mail !== null && $city !== null && $phone !== null && $identification_number !== null) {
-                $stmt = $dbConn->prepare("CALL insert_user(:prmname, :prmmail, :prmcity, :prmphone, :prmidentification_number, @phone_exist, @new_user_id)");
+            if ($name !== null && $mail !== null && $phone !== null && $identification_number !== null) {
+                $stmt = $dbConn->prepare("CALL insert_user(:prmname, :prmmail, :prmphone, :prmidentification_number, @phone_exist, @new_user_id)");
                 $stmt->bindParam(':prmname', $name, PDO::PARAM_STR);
                 $stmt->bindParam(':prmmail', $mail, PDO::PARAM_STR);
-                $stmt->bindParam(':prmcity', $city, PDO::PARAM_STR);
                 $stmt->bindParam(':prmphone', $phone, PDO::PARAM_STR);
                 $stmt->bindParam(':prmidentification_number', $identification_number, PDO::PARAM_INT);
                 $stmt->execute();
@@ -110,7 +108,7 @@
     
                 // Obtener los datos del usuario insertado utilizando el nuevo ID
                 $newUserId = $result['new_user_id'];
-                $userQuery = $dbConn->prepare("SELECT id, name, mail, city, phone, identification_number, date FROM users WHERE id = :newUserId");
+                $userQuery = $dbConn->prepare("SELECT id, name, mail, phone, identification_number, date FROM users WHERE id = :newUserId");
                 $userQuery->bindParam(':newUserId', $newUserId, PDO::PARAM_INT);
                 $userQuery->execute();
                 $userData = $userQuery->fetch(PDO::FETCH_ASSOC);
@@ -147,14 +145,12 @@
             $requestData = json_decode(file_get_contents('php://input'), true);
             $newpoints = $requestData['prmnewpoints_input'] ?? null;
             $user_id = $requestData['prmuser_id_input'] ?? null;
-            $locate = $requestData['prmlocate_input'] ?? null;
             $code_name = $requestData['prmcode_name_input'] ?? null;
 
-            if($newpoints != null && $user_id != null && $locate != null && $code_name != null){
-                $stmt = $dbConn->prepare("CALL insert_scores(:prmnewpoints, :prmuser_id, :prmlocate,:prmcodename, @prmuserexist)");
+            if($newpoints != null && $user_id != null && $code_name != null){
+                $stmt = $dbConn->prepare("CALL insert_scores(:prmnewpoints, :prmuser_id,:prmcodename, @prmuserexist)");
                 $stmt->bindParam(':prmnewpoints', $newpoints, PDO::PARAM_INT);
                 $stmt->bindParam(':prmuser_id', $user_id, PDO::PARAM_INT);
-                $stmt->bindParam(':prmlocate', $locate, PDO::PARAM_STR);
                 $stmt->bindParam(':prmcodename',$code_name,PDO::PARAM_STR);
                 $stmt->execute();
 
@@ -165,7 +161,7 @@
                 $prmuserexist = $result['prmuserexist'];
 
                 // Capturar el resultado del procedimiento almacenado
-                $stmt = $dbConn->query("SELECT id, points, user_id, date, locale FROM scores WHERE id = LAST_INSERT_ID()");
+                $stmt = $dbConn->query("SELECT id, points, user_id, date FROM scores WHERE id = LAST_INSERT_ID()");
                 $result = $stmt->fetch(PDO::FETCH_ASSOC);
                 if($result == false) $result = null;
 
@@ -196,12 +192,10 @@
             $requestData = json_decode(file_get_contents('php://input'), true);
             $user_id = $requestData['prmuser_id_input'] ?? null;
             $referal_id = $requestData['prmreferal_id_input'] ?? null;
-            $locate = $requestData['prmlocate_input'] ?? null;
 
-            if($user_id != null && $locate != null && $referal_id != null){
-                $stmt = $dbConn->prepare("CALL insert_referrals(:prmuser_id, :prmreferal_id, :prmlocate, @prmuserexist)");
+            if($user_id != null && $referal_id != null){
+                $stmt = $dbConn->prepare("CALL insert_referrals(:prmuser_id, :prmreferal_id, @prmuserexist)");
                 $stmt->bindParam(':prmuser_id', $user_id, PDO::PARAM_INT);
-                $stmt->bindParam(':prmlocate', $locate, PDO::PARAM_STR);
                 $stmt->bindParam(':prmreferal_id',$referal_id,PDO::PARAM_INT);
                 $stmt->execute();
 
@@ -212,7 +206,7 @@
                 $prmuserexist = $result['prmuserexist'];
 
                 // Capturar el resultado del procedimiento almacenado
-                $stmt = $dbConn->query("SELECT id, points, user_id, date, locale FROM referrals WHERE id = LAST_INSERT_ID()");
+                $stmt = $dbConn->query("SELECT id, points, user_id, date FROM referrals WHERE id = LAST_INSERT_ID()");
                 $result = $stmt->fetch(PDO::FETCH_ASSOC);
                 if($result == false) $result = null;
 
