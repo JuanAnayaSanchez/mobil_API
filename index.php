@@ -374,4 +374,30 @@
             echo json_encode($response);
         }      
     }
+
+    if($_SERVER['REQUEST_METHOD'] === 'POST' && $url === '/mobil_API/SelectScores'){
+        try{
+            $requestData = json_decode(file_get_contents('php://input'), true);
+            $nameOrPhone = $requestData['prmNameOrPhone'] ?? null;
+
+            $stmt = $dbConn->prepare("CALL select_scores(:prmNameOrPhone)");
+            $stmt->bindParam(':prmNameOrPhone', $nameOrPhone, PDO::PARAM_STR);
+            $stmt->execute();
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Interpretar el resultado
+            $result = $result ?? null; // Si no hay resultado, se asume falso (0)
+
+            $response = new APIResponse(200, 'Success', $result);
+            header('Content-Type: application/json');
+            echo json_encode($response);
+            
+        }catch (PDOException $e) {
+            http_response_code(500);
+            $response = new APIResponse(500, 'Internal Server Error', ['error' => $e->getMessage()]);
+            header('Content-Type: application/json');
+            echo json_encode($response);
+        }
+    }
+    
 ?>
