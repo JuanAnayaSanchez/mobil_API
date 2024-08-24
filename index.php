@@ -92,13 +92,15 @@
             $mail = $requestData['mail_input'] ?? null;
             $phone = $requestData['phone_input'] ?? null;
             $identification_number = $requestData['identification_number_input'] ?? null;
+            $cityname = $requestData['cityname_input'] ?? null;
     
             if ($name !== null && $mail !== null && $phone !== null && $identification_number !== null) {
-                $stmt = $dbConn->prepare("CALL insert_user(:prmname, :prmmail, :prmphone, :prmidentification_number, @phone_exist, @new_user_id)");
+                $stmt = $dbConn->prepare("CALL insert_user(:prmname, :prmmail, :prmphone, :prmidentification_number,:prmcityname, @phone_exist, @new_user_id)");
                 $stmt->bindParam(':prmname', $name, PDO::PARAM_STR);
                 $stmt->bindParam(':prmmail', $mail, PDO::PARAM_STR);
                 $stmt->bindParam(':prmphone', $phone, PDO::PARAM_STR);
                 $stmt->bindParam(':prmidentification_number', $identification_number, PDO::PARAM_INT);
+                $stmt->bindParam(':prmcityname', $cityname, PDO::PARAM_STR);
                 $stmt->execute();
     
                 // Obtener el resultado de las variables de salida
@@ -108,7 +110,7 @@
     
                 // Obtener los datos del usuario insertado utilizando el nuevo ID
                 $newUserId = $result['new_user_id'];
-                $userQuery = $dbConn->prepare("SELECT id, name, mail, phone, identification_number, date FROM users WHERE id = :newUserId");
+                $userQuery = $dbConn->prepare("SELECT id, name, mail, phone, identification_number, date,cityname FROM users WHERE id = :newUserId");
                 $userQuery->bindParam(':newUserId', $newUserId, PDO::PARAM_INT);
                 $userQuery->execute();
                 $userData = $userQuery->fetch(PDO::FETCH_ASSOC);
