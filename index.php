@@ -20,11 +20,11 @@
     
         try{
             $requestData = json_decode(file_get_contents('php://input'), true);
-            $phone_input = $requestData['phone_input'] ?? null;
-            if ($phone_input !== null) {
+            $document_input = $requestData['document_input'] ?? null;
+            if ($document_input !== null) {
                 // Ejecutar procedimiento almacenado
-                $stmt = $dbConn->prepare("CALL check_user_exist(:prmphone)");
-                $stmt->bindParam(':prmphone', $phone_input, PDO::PARAM_INT);
+                $stmt = $dbConn->prepare("CALL check_user_exist(:prmdocument)");
+                $stmt->bindParam(':prmdocument', $document_input, PDO::PARAM_INT);
                 $stmt->execute();
     
                 // Recoger registros como un arreglo asociativo
@@ -150,7 +150,7 @@
             $code_name = $requestData['prmcode_name_input'] ?? null;
             $locate = $requestData['prmlocate_input'] ?? null;
 
-            if($newpoints != null && $user_id != null && $code_name != null){
+            if($newpoints != null && $user_id != null && $code_name != null && $locate != null){
                 $stmt = $dbConn->prepare("CALL insert_scores(:prmnewpoints, :prmuser_id,:prmcodename,:prmlocate, @prmuserexist)");
                 $stmt->bindParam(':prmnewpoints', $newpoints, PDO::PARAM_INT);
                 $stmt->bindParam(':prmuser_id', $user_id, PDO::PARAM_INT);
