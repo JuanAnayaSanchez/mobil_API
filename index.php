@@ -93,36 +93,38 @@
             $phone = $requestData['phone_input'] ?? null;
             $identification_number = $requestData['identification_number_input'] ?? null;
             $cityname = $requestData['cityname_input'] ?? null;
+            $documentType = $requestData['document_type_input'] ?? null;
     
-            if ($name !== null && $mail !== null && $phone !== null && $identification_number !== null) {
-                $stmt = $dbConn->prepare("CALL insert_user(:prmname, :prmmail, :prmphone, :prmidentification_number,:prmcityname, @phone_exist, @new_user_id)");
+            if ($name !== null && $mail !== null && $phone !== null && $identification_number !== null && $documentType !== null) {
+                $stmt = $dbConn->prepare("CALL insert_user(:prmname, :prmmail, :prmphone, :prmidentification_number,:prmcityname,:prmdocument_type, @document_exist, @new_user_id)");
                 $stmt->bindParam(':prmname', $name, PDO::PARAM_STR);
                 $stmt->bindParam(':prmmail', $mail, PDO::PARAM_STR);
                 $stmt->bindParam(':prmphone', $phone, PDO::PARAM_STR);
                 $stmt->bindParam(':prmidentification_number', $identification_number, PDO::PARAM_INT);
                 $stmt->bindParam(':prmcityname', $cityname, PDO::PARAM_STR);
+                $stmt->bindParam(':prmdocument_type', $documentType, PDO::PARAM_STR);
                 $stmt->execute();
     
                 // Obtener el resultado de las variables de salida
-                $stmt = $dbConn->prepare("SELECT @phone_exist AS phone_exist, @new_user_id AS new_user_id");
+                $stmt = $dbConn->prepare("SELECT @document_exist AS document_exist, @new_user_id AS new_user_id");
                 $stmt->execute();
                 $result = $stmt->fetch(PDO::FETCH_ASSOC);
     
                 // Obtener los datos del usuario insertado utilizando el nuevo ID
                 $newUserId = $result['new_user_id'];
-                $userQuery = $dbConn->prepare("SELECT id, name, mail, phone, identification_number, date,cityname FROM users WHERE id = :newUserId");
+                $userQuery = $dbConn->prepare("SELECT id, name, mail, phone, identification_number, date,cityname,documentType FROM users WHERE id = :newUserId");
                 $userQuery->bindParam(':newUserId', $newUserId, PDO::PARAM_INT);
                 $userQuery->execute();
                 $userData = $userQuery->fetch(PDO::FETCH_ASSOC);
     
                 // Interpretar el resultado
-                $phoneExist = $result['phone_exist'] ?? 0; // Si no hay resultado, se asume falso (0)
+                $documentExist = $result['document_exist'] ?? 0; // Si no hay resultado, se asume falso (0)
     
                 // Construir y retornar respuesta
                 if(!$userData) $userData = null;
                 $response = new APIResponse(200, 'Success', [
                     'user' => $userData,
-                    'phone_exist' => (bool)$phoneExist
+                    'document_exist' => (bool)$documentExist
                 ]);
                 header('Content-Type: application/json');
                 echo json_encode($response);
@@ -136,7 +138,7 @@
         } catch (PDOException $e) {
             // Si ocurre un error en la base de datos, responder con un código de estado 500 y un mensaje de error
             http_response_code(500);
-            $response = new APIResponse(500, 'Database Error', []);
+            $response = new APIResponse(500, 'Database Error', $e);
             header('Content-Type: application/json');
             echo json_encode($response);
         }
