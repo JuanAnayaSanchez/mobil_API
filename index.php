@@ -49,6 +49,39 @@
         }
     }
 
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && $url === '/mobil_API/ValidateReferalExist') {
+    
+        try{
+            $requestData = json_decode(file_get_contents('php://input'), true);
+            $phone_input = $requestData['phone_input'] ?? null;
+            if ($phone_input !== null) {
+                // Ejecutar procedimiento almacenado
+                $stmt = $dbConn->prepare("CALL check_referral_exist(:prmphone)");
+                $stmt->bindParam(':prmphone', $phone_input, PDO::PARAM_INT);
+                $stmt->execute();
+    
+                // Recoger registros como un arreglo asociativo
+                $registros = $stmt->fetch(PDO::FETCH_ASSOC);
+                if($registros == false) $registros = null;
+                // Codificar y retornar respuesta
+                $response = new APIResponse(200,'Success',$registros);
+
+                header('Content-Type: application/json');
+                echo json_encode($response);
+            } else {
+                http_response_code(400);
+                $response = new APIResponse(400,'Missing parameter phone_input parameter',[]);
+                header('Content-Type: application/json');
+                echo json_encode($response);
+            }
+        }catch(PDOException $e){
+            http_response_code(500);
+            $response = new APIResponse(500,'Internal Server Error',[]);
+            header('Content-Type: application/json');
+            echo json_encode($response);
+        }
+    }
+
     if($_SERVER['REQUEST_METHOD'] === 'POST' && $url === '/mobil_API/ValidateCodeExist'){
         try{
             $requestData = json_decode(file_get_contents('php://input'), true);
