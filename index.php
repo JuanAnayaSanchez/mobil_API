@@ -512,5 +512,49 @@
             echo json_encode($response);
         }
     }
+
+    if($_SERVER['REQUEST_METHOD'] === 'GET' && $url === '/mobil_API/SelectPodiumUsers'){
+        try{
+
+            $stmt = $dbConn->prepare("CALL select_podium_users()");
+            $stmt->execute();
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Interpretar el resultado
+            $result = $result ?? null; // Si no hay resultado, se asume falso (0)
+
+            $response = new APIResponse(200, 'Success', $result);
+            header('Content-Type: application/json');
+            echo json_encode($response);
+            
+        }catch (PDOException $e) {
+            http_response_code(500);
+            $response = new APIResponse(500, 'Internal Server Error', ['error' => $e->getMessage()]);
+            header('Content-Type: application/json');
+            echo json_encode($response);
+        }
+    }
+
+    if($_SERVER['REQUEST_METHOD'] === 'GET' && $url === '/mobil_API/SelectGroupUsers'){
+        try{
+
+            $stmt = $dbConn->prepare("CALL select_group_users()");
+            $stmt->execute();
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Interpretar el resultado
+            $result = $result ?? null; // Si no hay resultado, se asume falso (0)
+
+            $response = new APIResponse(200, 'Success', $result);
+            header('Content-Type: application/json');
+            echo json_encode($response);
+            
+        }catch (PDOException $e) {
+            http_response_code(500);
+            $response = new APIResponse(500, 'Internal Server Error', ['error' => $e->getMessage()]);
+            header('Content-Type: application/json');
+            echo json_encode($response);
+        }
+    }
     
 ?>
