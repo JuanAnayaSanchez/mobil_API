@@ -118,6 +118,42 @@
         }
     }
 
+    if($_SERVER['REQUEST_METHOD'] === 'POST' && $url === '/mobil_API/ValidateInvoiceExist'){
+        try{
+            $requestData = json_decode(file_get_contents('php://input'), true);
+            $invoice_name_input = $requestData['invoice_name_input'] ?? null;
+            if($invoice_name_input !== null){
+                // Ejecutar procedimiento almacenado
+                $stmt = $dbConn->prepare("CALL check_invoice_exist(:prminvoice, @invoice_exists)");
+                $stmt->bindParam(':prminvoice', $invoice_name_input, PDO::PARAM_STR);
+                $stmt->execute();
+    
+                // Obtener el resultado de la variable de salida
+                $stmt = $dbConn->prepare("SELECT @invoice_exists AS invoice_exists");
+                $stmt->execute();
+                $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+                // Interpretar el resultado
+                $exists = isset($result['invoice_exists']) && $result['invoice_exists'] == 1 ? true : false;
+            
+                // Codificar y retornar respuesta
+                $response = new APIResponse(200, 'Success', ['exists' => (bool)$exists]);
+                header('Content-Type: application/json');
+                echo json_encode($response);
+            }else{
+                http_response_code(400);
+                $response = new APIResponse(400, 'Missing parameter code_name_input', []);
+                header('Content-Type: application/json');
+                echo json_encode($response);
+            }
+        }catch (PDOException $e){
+            http_response_code(500);
+            $response = new APIResponse(500, 'Internal Server Error', $e);
+            header('Content-Type: application/json');
+            echo json_encode($response);
+        }
+    }
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && $url === '/mobil_API/InsertUser') {
         try {
             $requestData = json_decode(file_get_contents('php://input'), true);
@@ -184,13 +220,15 @@
             $user_id = $requestData['prmuser_id_input'] ?? null;
             $code_name = $requestData['prmcode_name_input'] ?? null;
             $locate = $requestData['prmlocate_input'] ?? null;
+            $invoice = $requestData['invoice_input'] ?? null;
 
-            if($newpoints != null && $user_id != null && $code_name != null && $locate != null){
-                $stmt = $dbConn->prepare("CALL insert_scores(:prmnewpoints, :prmuser_id,:prmcodename,:prmlocate, @prmuserexist)");
+            if($newpoints != null && $user_id != null && $code_name != null && $locate != null && $invoice != null){
+                $stmt = $dbConn->prepare("CALL insert_scores(:prmnewpoints, :prmuser_id,:prmcodename,:prmlocate,:prminvoice, @prmuserexist)");
                 $stmt->bindParam(':prmnewpoints', $newpoints, PDO::PARAM_INT);
                 $stmt->bindParam(':prmuser_id', $user_id, PDO::PARAM_INT);
                 $stmt->bindParam(':prmcodename',$code_name,PDO::PARAM_STR);
                 $stmt->bindParam(':prmlocate',$locate,PDO::PARAM_STR);
+                $stmt->bindParam(':prminvoice',$invoice,PDO::PARAM_STR);
                 $stmt->execute();
 
                 // Capturar el valor de prmuserexist
